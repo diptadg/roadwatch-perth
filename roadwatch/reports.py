@@ -189,6 +189,8 @@ def _send_report_share_email(report, recipient_email):
     mail_server = current_app.config.get("MAIL_SERVER")
     if not mail_server:
         raise MailConfigurationError("Email sharing is not configured. Set MAIL_SERVER and mail credentials.")
+    if current_app.config.get("MAIL_USERNAME") and not current_app.config.get("MAIL_PASSWORD"):
+        raise MailConfigurationError("Email sharing is not configured. Set MAIL_PASSWORD for MAIL_USERNAME.")
 
     subject, body, _report_url = _report_share_message(report)
     message = EmailMessage()
@@ -205,7 +207,7 @@ def _send_report_share_email(report, recipient_email):
         with smtp_class(mail_server, mail_port, timeout=mail_timeout) as smtp:
             if current_app.config["MAIL_USE_TLS"] and not current_app.config["MAIL_USE_SSL"]:
                 smtp.starttls()
-            if current_app.config["MAIL_USERNAME"]:
+            if current_app.config.get("MAIL_USERNAME"):
                 smtp.login(current_app.config["MAIL_USERNAME"], current_app.config["MAIL_PASSWORD"])
             smtp.send_message(message)
     except smtplib.SMTPAuthenticationError as error:

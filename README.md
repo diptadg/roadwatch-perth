@@ -16,13 +16,30 @@ Reports are stored in SQLite through SQLAlchemy models. New reports enter a pend
 
 ## Group Members
 
+RoadWatch Perth was built as a team project for CITS5505 Agile Web Development at The University of Western Australia (Semester 1, 2026). Credit for the application belongs to the whole team below; this repository is a portfolio copy of the final submission.
 
 | Name | GitHub username |
 | --- | --- |
 | Dipta Datta Gupta | diptadg |
 | Sagar Kumar Sah Kanu | Sagar20834 |
 | Harshil Prafulbhai Ratanpara | Harshil8802 |
-| Ziqi Meng | Jiongge |
+| Ziqi Meng | Jiongge390 |
+
+## My Contributions
+
+<!-- DRAFT generated from commit history: edit before publishing. -->
+
+I (Dipta Datta Gupta, [@diptadg](https://github.com/diptadg)) contributed 32 commits (plus 3 merges), including:
+
+- **Backend foundation:** the initial Flask implementation with Jinja templates and SQLAlchemy models, and the local schema-sync safeguard.
+- **Community features:** report confirmations (model, AJAX toggle, and toast notifications), comment threads (model, endpoint, and migration), and the severity field on report forms.
+- **Moderation workflow:** split the admin panel into pending and reviewed reports, added the moderation-status and structured-location migrations, fixed approved reports not appearing for users, and added pagination to the admin and public report lists.
+- **Accounts and notifications:** persisted notifications across sessions, built the admin user-management panel, and fixed user blocking and hotspot visibility and deduplication.
+- **Address autocomplete:** OpenStreetMap-based address suggestions with suburb and postcode auto-fill and a fallback.
+- **Demo data tooling:** the `seed-demo` and `reset-demo` CLI commands.
+- **Testing:** set up pytest and wrote the backend workflow suite, added the Selenium browser tests, and covered login redirects, account blocking, hotspots, and WhatsApp sharing.
+- **UI:** the MD3-inspired theme overhaul with animated visuals.
+- **Docs and repo tooling:** the README, project documentation, `.gitignore` rules, and the team's branch push-restriction workflow.
 
 ## Features
 
@@ -111,7 +128,7 @@ Then open `http://127.0.0.1:5000`.
 
 ### Email sharing setup
 
-Report sharing by email sends through SMTP. This demo project includes SMTP defaults in `roadwatch/config.py` for the university presentation. To use a different sender, set environment variables before starting Flask:
+Report sharing by email sends through SMTP. SMTP credentials are read only from environment variables; there are no defaults in `roadwatch/config.py`. See [`.env.example`](.env.example) for every supported variable. Set them before starting Flask:
 
 ```powershell
 $env:MAIL_SERVER="smtp.gmail.com"
@@ -124,7 +141,7 @@ $env:MAIL_DEFAULT_SENDER="RoadWatch Perth <your-email@example.com>"
 flask --app app run
 ```
 
-For Gmail, use an app password rather than your normal account password. Real environment variables take precedence over the demo defaults in `roadwatch/config.py`.
+For Gmail, use an app password rather than your normal account password. If `MAIL_SERVER` is empty, or `MAIL_USERNAME` is set without `MAIL_PASSWORD`, the share endpoint returns a "not configured" error instead of attempting delivery.
 
 ## Demo Data
 
@@ -176,7 +193,7 @@ Current coverage includes:
 - Admin user management dashboard and block/unblock behavior.
 - Admin comment deletion.
 - AJAX report confirmations.
-- Email share success, missing-mail-configuration handling, invalid-email rejection, and WhatsApp share rendering.
+- Email share success, missing-mail-configuration handling, unset or partial SMTP credentials, invalid-email rejection, and WhatsApp share rendering.
 - Address suggestion endpoint behavior and Photon response normalization.
 - Dashboard/admin hotspot visibility and deduplication logic.
 - Perth timezone display through `datetime_label`.

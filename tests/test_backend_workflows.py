@@ -725,6 +725,76 @@ def test_report_email_share_requires_mail_configuration(client, app):
     assert "not configured" in payload["message"]
 
 
+def test_report_email_share_without_credentials_skips_smtp_login(client, app, monkeypatch):
+    smtp_calls = []
+
+    class FakeSMTP:
+        def __init__(self, host, port, timeout):
+            smtp_calls.append(("connect", host, port))
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc_info):
+            return False
+
+        def starttls(self):
+            smtp_calls.append(("starttls",))
+
+        def login(self, username, password):
+            raise AssertionError("SMTP login should be skipped when MAIL_USERNAME is unset")
+
+        def send_message(self, message):
+            smtp_calls.append(("send", message["To"]))
+
+    monkeypatch.setattr("roadwatch.reports.smtplib.SMTP", FakeSMTP)
+
+    with app.app_context():
+        report = create_report()
+        report_id = report.id
+        app.config.update(MAIL_SERVER="localhost", MAIL_USERNAME=None, MAIL_PASSWORD=None)
+
+    reports_page = client.get("/reports/")
+    token = csrf_token(reports_page)
+
+    response = client.post(
+        f"/reports/{report_id}/share/email",
+        data={"csrf_token": token, "email": "neighbour@example.com"},
+        headers={"X-Requested-With": "XMLHttpRequest"},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["ok"] is True
+    assert smtp_calls[0][:2] == ("connect", "localhost")
+    assert smtp_calls[-1] == ("send", "neighbour@example.com")
+
+
+def test_report_email_share_requires_password_when_username_set(client, app, monkeypatch):
+    def fail_connect(*args, **kwargs):
+        raise AssertionError("SMTP should not be contacted without MAIL_PASSWORD")
+
+    monkeypatch.setattr("roadwatch.reports.smtplib.SMTP", fail_connect)
+
+    with app.app_context():
+        report = create_report()
+        report_id = report.id
+        app.config.update(MAIL_SERVER="localhost", MAIL_USERNAME="sender@example.com", MAIL_PASSWORD=None)
+
+    reports_page = client.get("/reports/")
+    token = csrf_token(reports_page)
+
+    response = client.post(
+        f"/reports/{report_id}/share/email",
+        data={"csrf_token": token, "email": "neighbour@example.com"},
+        headers={"X-Requested-With": "XMLHttpRequest"},
+    )
+
+    assert response.status_code == 503
+    payload = response.get_json()
+    assert payload["ok"] is False
+    assert "not configured" in payload["message"]
+
+
 def test_report_email_share_rejects_invalid_email(client, app, monkeypatch):
     with app.app_context():
         report = create_report()
