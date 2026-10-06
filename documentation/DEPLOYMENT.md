@@ -4,16 +4,12 @@ These steps host RoadWatch Perth on a free PythonAnywhere account at `https://di
 
 ## 1. Clone the repository
 
-The GitHub repository is private, so cloning needs a token. On GitHub, create a fine-grained personal access token (Settings → Developer settings → Fine-grained tokens) with access to this repository only, **Contents: Read-only**, and an expiry date.
-
 Open a **Bash console** on PythonAnywhere (Consoles tab) and run:
 
 ```bash
 cd ~
 git clone https://github.com/diptadg/roadwatch-perth.git
 ```
-
-Enter your GitHub username, and paste the token when it asks for a password. Don't put the token in the clone URL, because Git would store it in `.git/config`.
 
 ## 2. Create the virtual environment
 
