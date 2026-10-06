@@ -126,6 +126,8 @@ flask --app app run
 
 Then open `http://127.0.0.1:5000`.
 
+To host the app online, see [`documentation/DEPLOYMENT.md`](documentation/DEPLOYMENT.md) for PythonAnywhere setup.
+
 ### Email sharing setup
 
 Report sharing by email sends through SMTP. SMTP credentials are read only from environment variables; there are no defaults in `roadwatch/config.py`. See [`.env.example`](.env.example) for every supported variable. Set them before starting Flask:
